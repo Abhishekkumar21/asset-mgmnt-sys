@@ -4,7 +4,6 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -13,14 +12,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     sourcemap: false,
-    emptyOutDir: true,
     rollupOptions: {
       output: {
-        format: 'systemjs',
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) {
+              return 'react-vendor';
+            }
+            if (id.includes('antd') || id.includes('@ant-design')) {
+              return 'antd-vendor';
+            }
+            return 'vendor';
+          }
+        }
       }
     }
   },
