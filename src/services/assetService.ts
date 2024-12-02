@@ -9,7 +9,7 @@ interface AssetQueryParams {
   pageSize?: number;
 }
 
-interface PaginatedResponse<T> {
+export interface PaginatedResponse<T> {
   items: T[];
   total: number;
   page: number;
