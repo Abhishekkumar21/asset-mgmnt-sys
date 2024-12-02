@@ -12,8 +12,17 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: process.env.NODE_ENV === 'development',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['antd', '@ant-design/icons'],
+          state: ['@reduxjs/toolkit', 'react-redux']
+        }
+      }
+    }
   },
   server: {
     port: 3000,
