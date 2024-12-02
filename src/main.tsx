@@ -6,10 +6,8 @@ import './index.css';
 import App from './App';
 import { initMockServiceWorker } from './mocks/init-msw';
 
-// Initialize mock service worker in development
-if (import.meta.env.DEV) {
-  initMockServiceWorker();
-}
+// Initialize mock service worker in development and production
+initMockServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
