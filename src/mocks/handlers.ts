@@ -7,6 +7,18 @@ import {
   mockCategories,
   mockServiceRequests
 } from './data/mockData';
+import { 
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  RegisterResponse,
+  ErrorResponse,
+  AssetRequest,
+  AssetRequestResponse,
+  ServiceRequest,
+  ServiceRequestResponse,
+  User
+} from '../types/auth';
 
 // Get the base API URL from environment or use a default
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -14,111 +26,75 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 export const handlers = [
   // Auth endpoints
   http.post(`${API_URL}/auth/login`, async ({ request }) => {
-    const body = await request.json();
-    const user = mockUsers.find(u => u.email === body.email);
+    const body = await request.json() as LoginRequest;
+    const user = mockUsers.find(u => u.email === body.email) as User;
 
-    if (!user || body.password !== 'password') { // In real app, use proper password hashing
+    if (!user || body.password !== 'password') {
       return new HttpResponse(
-        JSON.stringify({ message: 'Invalid credentials' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'Invalid credentials' } as ErrorResponse),
+        { status: 401 }
       );
     }
 
-    return HttpResponse.json({
+    const response: AuthResponse = {
       user,
-      token: `mock-jwt-token-${user.role.toLowerCase()}`,
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+      token: `mock-jwt-token-${user.role.toLowerCase()}`
+    };
+
+    return new HttpResponse(JSON.stringify(response), { status: 200 });
   }),
 
   http.post(`${API_URL}/auth/register`, async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as RegisterRequest;
     
     if (mockUsers.some(u => u.email === body.email)) {
       return new HttpResponse(
-        JSON.stringify({ message: 'Email already exists' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'Email already exists' } as ErrorResponse),
+        { status: 400 }
       );
     }
 
-    return HttpResponse.json({
-      message: 'Registration successful',
-    }, {
-      status: 201,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    const response: RegisterResponse = {
+      message: 'Registration successful'
+    };
+
+    return new HttpResponse(JSON.stringify(response), { status: 201 });
   }),
 
-  // Get current user
   http.get(`${API_URL}/auth/me`, async ({ request }) => {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new HttpResponse(
-        JSON.stringify({ message: 'Authentication required' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'Authentication required' } as ErrorResponse),
+        { status: 401 }
       );
     }
 
     const token = authHeader.split(' ')[1];
     const role = token.includes('admin') ? 'ADMIN' : 'EMPLOYEE';
-    const user = mockUsers.find(u => u.role === role);
+    const user = mockUsers.find(u => u.role === role) as User;
 
     if (!user) {
       return new HttpResponse(
-        JSON.stringify({ message: 'User not found' }),
-        {
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'User not found' } as ErrorResponse),
+        { status: 404 }
       );
     }
 
-    return HttpResponse.json(user, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    const response: AuthResponse = {
+      user,
+      token: `mock-jwt-token-${user.role.toLowerCase()}`
+    };
+
+    return new HttpResponse(JSON.stringify(response), { status: 200 });
   }),
 
-  // Refresh token
   http.post(`${API_URL}/auth/refresh-token`, async ({ request }) => {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new HttpResponse(
-        JSON.stringify({ message: 'Authentication required' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'Authentication required' } as ErrorResponse),
+        { status: 401 }
       );
     }
 
@@ -126,11 +102,7 @@ export const handlers = [
     const role = oldToken.includes('admin') ? 'admin' : 'employee';
     const newToken = `mock-jwt-token-${role}-${Date.now()}`;
 
-    return HttpResponse.json({ token: newToken }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify({ token: newToken }), { status: 200 });
   }),
 
   // Get employee dashboard data
@@ -138,24 +110,12 @@ export const handlers = [
     const authHeader = request.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new HttpResponse(
-        JSON.stringify({ message: 'Authentication required' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
+        JSON.stringify({ message: 'Authentication required' } as ErrorResponse),
+        { status: 401 }
       );
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    return HttpResponse.json(mockDashboardData, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify(mockDashboardData), { status: 200 });
   }),
 
   // Asset endpoints
@@ -174,19 +134,11 @@ export const handlers = [
       filteredAssets = filteredAssets.filter(asset => asset.status === status);
     }
 
-    return HttpResponse.json(filteredAssets, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify(filteredAssets), { status: 200 });
   }),
 
   http.get(`${API_URL}/assets/categories`, async () => {
-    return HttpResponse.json(mockCategories, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify(mockCategories), { status: 200 });
   }),
 
   http.get(`${API_URL}/assets/suggestions`, async ({ request }) => {
@@ -199,31 +151,32 @@ export const handlers = [
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    return HttpResponse.json(suggestions, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify(suggestions), { status: 200 });
   }),
 
   // Asset requests
   http.post(`${API_URL}/assets/request`, async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as AssetRequest;
     
+    // Validate required fields
+    if (!body.assetType || !body.reason) {
+      return new HttpResponse(
+        JSON.stringify({
+          message: 'Missing required fields: assetType and reason are required'
+        } as ErrorResponse),
+        { status: 400 }
+      );
+    }
+
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     return new HttpResponse(
       JSON.stringify({
         message: 'Asset request submitted successfully',
-        requestId: 'mock-123'
-      }),
-      {
-        status: 201,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+        requestId: `req-${Date.now()}`,
+        request: body
+      } as AssetRequestResponse),
+      { status: 201 }
     );
   }),
 
@@ -233,46 +186,47 @@ export const handlers = [
     const status = url.searchParams.get('status');
     
     let filteredRequests = [...mockServiceRequests];
-    
     if (status) {
       filteredRequests = filteredRequests.filter(req => req.status === status);
     }
 
-    return HttpResponse.json(filteredRequests, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new HttpResponse(JSON.stringify(filteredRequests), { status: 200 });
   }),
 
   http.post(`${API_URL}/assets/service`, async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as ServiceRequest;
     
+    // Validate required fields
+    if (!body.assetId || !body.issue) {
+      return new HttpResponse(
+        JSON.stringify({
+          message: 'Missing required fields: assetId and issue are required'
+        } as ErrorResponse),
+        { status: 400 }
+      );
+    }
+
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     return new HttpResponse(
       JSON.stringify({
         message: 'Service request submitted successfully',
-        requestId: 'mock-456'
-      }),
-      {
-        status: 201,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+        requestId: `srv-${Date.now()}`,
+        request: body
+      } as ServiceRequestResponse),
+      { status: 201 }
     );
   }),
 
   // Handle OPTIONS requests for CORS
   http.options('*', () => {
     return new HttpResponse(null, {
+      status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
     });
   })
 ];
