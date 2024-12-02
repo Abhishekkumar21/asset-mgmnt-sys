@@ -84,6 +84,7 @@ export const mockServiceRequests = [
   }
 ];
 
+// Mock dashboard data
 export const mockDashboardData: EmployeeDashboardData = {
   myAssets: {
     total: 5,
@@ -99,30 +100,32 @@ export const mockDashboardData: EmployeeDashboardData = {
   recentActivities: [
     {
       id: '1',
-      date: new Date('2024-02-20').toISOString(),
-      assetName: 'MacBook Pro M1',
+      date: new Date().toISOString(),
+      assetName: 'MacBook Pro',
       action: 'Request',
-      status: 'approved'
-    },
-    {
-      id: '2',
-      date: new Date('2024-02-19').toISOString(),
-      assetName: 'Office Chair',
-      action: 'Service Request',
       status: 'pending'
     },
     {
-      id: '3',
-      date: new Date('2024-02-18').toISOString(),
-      assetName: 'Monitor Dell 27"',
-      action: 'Return',
+      id: '2',
+      date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+      assetName: 'Dell Monitor',
+      action: 'Service',
       status: 'approved'
     }
   ],
   myAssetsByCategory: [
-    { category: 'Laptop', count: 2 },
-    { category: 'Furniture', count: 2 },
-    { category: 'Gadgets', count: 1 }
+    {
+      category: 'Laptops',
+      count: 2
+    },
+    {
+      category: 'Monitors',
+      count: 2
+    },
+    {
+      category: 'Peripherals',
+      count: 1
+    }
   ]
 };
 
