@@ -2,39 +2,21 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "routes": [
-    {
-      "src": "/assets/(.*)\\.js",
-      "headers": {
-        "Content-Type": "application/javascript"
-      },
-      "continue": true
-    },
-    {
-      "src": "/assets/(.*)\\.mjs",
-      "headers": {
-        "Content-Type": "application/javascript"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
-          "key": "Cross-Origin-Opener-Policy",
-          "value": "same-origin"
-        },
-        {
-          "key": "Cross-Origin-Embedder-Policy",
-          "value": "require-corp"
+          "key": "Content-Type",
+          "value": "application/javascript"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

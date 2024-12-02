@@ -13,18 +13,13 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: process.env.NODE_ENV === 'development',
+    sourcemap: false,
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['antd', '@ant-design/icons'],
-          state: ['@reduxjs/toolkit', 'react-redux']
-        },
-        format: 'es',
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
+        format: 'systemjs',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
