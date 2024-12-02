@@ -208,9 +208,9 @@ const AdminDashboard: React.FC = () => {
                     onClick={() => navigate(`/assets/category/${category.category}`)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{category.category}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category.count}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category.available}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category.available || 0}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {Math.round(((category.count - category.available) / category.count) * 100)}%
+                    {Math.round(((category.count - (category.available || 0)) / category.count) * 100)}%
                   </td>
                 </tr>
               ))}
