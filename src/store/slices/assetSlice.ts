@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Asset, AssetRequest, AuditRequest } from '../../types';
 import { assetService } from '../../services/assetService';
+import type { PaginatedResponse } from '../../services/assetService';
 import { message } from 'antd';
 
 interface AssetState {
@@ -30,24 +31,23 @@ const initialState: AssetState = {
 };
 
 // Async thunks
-export const fetchAssets = createAsyncThunk(
-  'assets/fetchAssets',
-  async ({ page, pageSize, search, category, status }: {
+export const fetchAssets = createAsyncThunk<
+  PaginatedResponse<Asset>,
+  {
     page?: number;
     pageSize?: number;
     search?: string;
     category?: string;
     status?: Asset['status'];
-  }) => {
-    try {
-      const response = await assetService.getAllAssets({ page, pageSize, search, category, status });
-      return response;
-    } catch (error) {
-      message.error('Failed to fetch assets');
-      throw error;
-    }
   }
-);
+>('assets/fetchAssets', async (params) => {
+  try {
+    return await assetService.getAllAssets(params);
+  } catch (error) {
+    message.error('Failed to fetch assets');
+    throw error;
+  }
+});
 
 export const fetchUserAssets = createAsyncThunk(
   'assets/fetchUserAssets',
